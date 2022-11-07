@@ -94,8 +94,56 @@ public class MainMenu : MonoBehaviour
 
 - Практическая работа «Доработка меню и функционала с остановкой игры»
 
+Создадим меню настроек. Для этого сделаем дубликат объекта MainMenu, удалим лишние элементы и переименуем кнопку QUIT в BACK:
 
-- Практическая работа «Прибираемся в папке»
+![](/Pics/z1_10.jpg)
+
+Чтобы наши меню переключались между собой, поставим следующие настройки кнопкам OPTIONS и BACK:
+
+![](/Pics/z1_11.jpg)
+![](/Pics/z1_12.jpg)
+
+Далее сделаем паузу во время игры и возможность выхода в главное меню. Для этого напишем следующий код:
+```C#
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class Pause : MonoBehaviour
+{
+    private bool isPaused = false;
+    public GameObject panel;
+
+    
+    void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            if(!isPaused)
+            {
+                Time.timeScale = 0;
+                isPaused = true;
+                panel.SetActive(true);
+            }
+            else
+            {
+                Time.timeScale = 1;
+                isPaused = false;
+                panel.SetActive(false);
+            }
+        }
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
+        }
+    }
+}
+```
+
+Затем прицепим этот скрипт на камеру и в поле panel перенесем наш текстовый объект, который мы будем выводить во время паузы. Конечный результат:
+
+![](/Pics/z1_13.jpg)
+
+- Практическая работа «Добавление звукового сопровождения в игре»
 
 
 - Практическая работа «Интеграция игровых сервисов в готовое приложение»
