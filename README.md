@@ -1,5 +1,5 @@
-# Реализация рейтинговой системы пользователей и ее интеграция в пользовательский интерфейс
-Отчет по лабораторной работе #3 выполнил(а):
+# Доработка интерактивного приложения и его подготовка к сборке
+Отчет по лабораторной работе #4 выполнил(а):
 - Паханов Александр Александрович
 - РИ-300018
 
@@ -36,129 +36,137 @@
 - ✨Magic ✨
 
 ## Цель работы
-Создание интерактивного приложения с рейтинговой системой пользователя и интеграция игровых сервисов в готовое приложение.
+Cоздание интерактивного приложения с рейтинговой системой пользователя и интеграция игровых сервисов в готовое приложение.
 
 ## Задание 1
-### Используя видео-материалы практических работ 1-5 повторить реализацию игровых механик.
+### Используя видео-материалы практических работ 1-5 повторить реализацию функционала.
 ### Ход работы:
 
-- Практическая работа «Механизм ловли объектов»
+- Практическая работа «Создание анимации объектов на сцене»
 
-Напишем код, с помощью которого реализуем передвижение энергетического щита с помощью курсора мыши и исчезновение яиц при пересечении:
-```C#
-using UnityEngine;
-
-public class EnergyShield : MonoBehaviour
-{
-    void Update()
-    {
-        Vector3 mousePos2D = Input.mousePosition;
-        mousePos2D.z = -Camera.main.transform.position.z;
-        Vector3 mousePos3D = Camera.main.ScreenToWorldPoint(mousePos2D);
-        Vector3 pos = this.transform.position;
-        pos.x = mousePos3D.x;
-        this.transform.position = pos;
-    }
-
-    private void OnCollisionEnter(Collision coll)
-    {
-        GameObject Collided = coll.gameObject;
-        if (Collided.tag == "Dragon Egg")
-            Destroy(Collided);
-    }
-}
-```
-Сам код привязываем к префабу энергетического щита.
-Также добавим объект Canvas с текстовым полем, в котором будет отображаться количество очков. Настройки Canvas и TMP:
+Переименнуем нашу сцену, создадим ее копию и начнем переделывать ее под главное меню. После удаления ненужных и добавления необходимых объектов, иерархия приняла следующий вид:
 
 ![](/Pics/z1_1.jpg)
+
+Изменим анимацию дракона на уже готовую IDLE:
+
 ![](/Pics/z1_2.jpg)
 
-- Практическая работа «Добавляем счетчик»
+Затем сделаем анимацию для облака, задав следующие параметры позиции объекта в ключевых точках:
 
-Добавим в скрипт EnergyShield следующий код, который будет обнулять счетчик на старте и обновлять его при поимке яйца:
-```C#
-public TextMeshProUGUI scoreGT;
-void Start()
-{
-    GameObject scoreGO = GameObject.Find("Score");
-    scoreGT = scoreGO.GetComponent<TextMeshProUGUI>();
-    scoreGT.text = "0";
-}
-private void OnCollisionEnter(Collision coll)
-{
-    GameObject Collided = coll.gameObject;
-    if (Collided.tag == "Dragon Egg")
-        Destroy(Collided);
-    int score = int.Parse(scoreGT.text);
-    score += 1;
-    scoreGT.text = score.ToString();
-}
-```
+![](/Pics/z1_3.jpg)
+![](/Pics/z1_4.jpg)
+![](/Pics/z1_5.jpg)
 
-В скрипт DragonPicker добавим метод, который будет уничтожать все яйца на сцене:
-```C#
-public void DragonEggDestroyed()
-{
-    GameObject[] tDragonEggArray = GameObject.FindGameObjectsWithTag("Dragon Egg");
-    foreach (GameObject tGO in tDragonEggArray)
-        Destroy(tGO);
-}
-```
+- Практическая работа «Создание стартовой сцены и переключение между ними»
 
-Данный метода будем вызывать в скрипте DragonEgg, когда игроку не удасться поймать яйцо, тем самым мы будем уничтожать следующее.
+Добавим UI эллементы в виде заголовка и кнопок:
+
+![](/Pics/z1_6.jpg)
+
+Напишем следующий скрипт для кнопок:
 ```C#
-void Update()
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class MainMenu : MonoBehaviour
 {
-    if(transform.position.y < bottomY)
+    public void PlayGame()
     {
-        Destroy(this.gameObject);
-        DragonPicker apScript = Camera.main.GetComponent<DragonPicker>();
-        apScript.DragonEggDestroyed();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
     }
 }
 ```
 
-- Практическая работа «Уменьшение жизни. Добавление текстуры»
+Прицепим скрипт на объект MainMenu и зададим следующие настройки кнопкам PLAY и QUIT:
 
-Для реализации механики жизней игрока добавим в скрипт DragonPicker следующие строчки кода:
+![](/Pics/z1_7.jpg)
+![](/Pics/z1_8.jpg)
 
-В Start():
+В настройках проекта зададим следующую иерархию сцен, чтобы при нажатии на кнопку PLAY мы переходили из главного меню на игровое поле:
+
+![](/Pics/z1_9.jpg)
+
+- Практическая работа «Доработка меню и функционала с остановкой игры»
+
+Создадим меню настроек. Для этого сделаем дубликат объекта MainMenu, удалим лишние элементы и переименуем кнопку QUIT в BACK:
+
+![](/Pics/z1_10.jpg)
+
+Чтобы наши меню переключались между собой, поставим следующие настройки кнопкам OPTIONS и BACK:
+
+![](/Pics/z1_11.jpg)
+![](/Pics/z1_12.jpg)
+
+Далее сделаем паузу во время игры и возможность выхода в главное меню. Для этого напишем следующий код:
 ```C#
-for(int i = 1; i <= numEnergyShield; i++)
-    shieldList.Add(tShieldGo);
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class Pause : MonoBehaviour
+{
+    private bool isPaused = false;
+    public GameObject panel;
+
+    
+    void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            if(!isPaused)
+            {
+                Time.timeScale = 0;
+                isPaused = true;
+                panel.SetActive(true);
+            }
+            else
+            {
+                Time.timeScale = 1;
+                isPaused = false;
+                panel.SetActive(false);
+            }
+        }
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
+        }
+    }
+}
 ```
 
-В DragonEggDestroyed():
+Затем прицепим этот скрипт на камеру и в поле panel перенесем наш текстовый объект, который мы будем выводить во время паузы. Конечный результат:
+
+![](/Pics/z1_13.jpg)
+
+- Практическая работа «Добавление звукового сопровождения в игре»
+
+Добавим в нашу папку все необходимы звуки:
+
+![](/Pics/z1_14.jpg)
+
+Добавим к камере в главном меню компонент AudioSource, в параметре Audio Clip выберем соответствующий звук, и включим два параметра Play On Awake и Loop.
+
+То же самое проделаем с камерой на игровом поле, префабом яйца и щита, только в последних двух выключим два параметра, чтобы наш звук проигрывался не сразу и не зацикливался. Добавим в наши скрипты яйца и щита следующие строчки в места, где требуется проигрывание звуков:
+
 ```C#
-int shieldIndex = shieldList.Count - 1;
-GameObject tShieldGo = shieldList[shieldIndex];
-shieldList.RemoveAt(shieldIndex);
-Destroy(tShieldGo);
-
-if (shieldList.Count == 0)
-    SceneManager.LoadScene("_0Scene");
+audioSource = GetComponent<AudioSource>();
+audioSource.Play();
 ```
-Таким образом, при уничтожении всех щитов сцена будет перезапускаться.
 
-Добавим немного текстур из UnityAssetStore:
+- Практическая работа «Добавление персонажа и сборка сцены для публикации на web-ресурсе»
 
-![](/Pics/z1_3.jpg)
+Скачаем персонажа с анимацией с сайта maximo.com, перенесем файл в папку с префабами, настроим текстуры и контролер анимаций. Добавим персонажа на сцену:
 
-- Практическая работа «Прибираемся в папке»
+![](/Pics/z1_15.jpg)
 
-После структурирования файлов проекта, мы имеем его следующий вид:
+Затем добавим и настроим источник света для создания ощущения, что персонаж управляет щитом:
 
-![](/Pics/z1_4.jpg)
-
-Проверим, что мы перенесли все, что нам нужно:
-
-![](/Pics/z1_5.jpg)
-
-- Практическая работа «Интеграция игровых сервисов в готовое приложение»
-
-Встроим плагин Yandex Games в нашу игру, выставим необходимые настройки, сделаем и выложим билд в черновик Яндекс Игр. Результат:
-https://yandex.ru/games/app/199729?draft=true&lang=ru
+![](/Pics/z1_16.jpg)
 
 ## Задание 2
 ### Добавить в приложение интерфейс для вывода статуса наличия игрока в сети (онлайн или офлайн).
