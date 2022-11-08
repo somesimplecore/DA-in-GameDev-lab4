@@ -179,56 +179,46 @@ audioSource.Play();
 Сборка осуществляется исключительно под архитектуру и технологии выбранной платформы. У каждой из них может быть своя особенность в виде уникального устройства ввода, который можно дополнительно настраивать(те же гирокопы в геймпадах) свои настройки визуальной и технической части продукта(одна платформа может не тянуть фичи, которые есть на другой, или просто не иметь технологии для ее реализации) и т. д. Также нужно открывать билд на соответствующей платформе или с помощью эмулятора.
 
 ## Задание 3
-### Реализовать вывод в консоль количества времени отсутствия игрока в сети если пользователь офлайн.
+### Добавить в меню Option возможность изменения громкости (от 0 до 100%) фоновой музыки в игре.
 ### Ход работы:
 
-Немного перепишем скрипт из прошлого задания:
+Создадим Audio Mixer, через который мы будем настраивать громкость музыки в главном меню и на игровом поле. В настройках Audio Source у камер поменяем Output на наш Audio Mixer:
+
+![](/Pics/z3_1.jpg)
+
+Затем создадим в меню Options слайдер и заголовок:
+
+![](/Pics/z3_2.jpg)
+
+Для регулировки звука напишем следующий скрипт:
 ```C#
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
-using YG;
-using System;
+using UnityEngine.Audio;
 
-public class OnlineChecker : MonoBehaviour
+public class VolumeSettings : MonoBehaviour
 {
-    public TextMeshProUGUI statusText;
-    public Image statusImage;
-    public DateTime LastLoginTime;
-    void Start()
-    {
-        statusText = GameObject.Find("StatusText").GetComponent<TextMeshProUGUI>();
-        statusImage = GameObject.Find("StatusImage").GetComponent<Image>();
-    }
+    public AudioMixer audioMixer;
 
-    void Update()
+    public void SetVolume(float volNum)
     {
-        if(YandexGame.SDKEnabled)
-        {
-            statusText.text = "Online";
-            statusImage.color = Color.green;
-            LastLoginTime = DateTime.Now;
-        }
-        else
-        {
-
-            statusText.text = "Offline";
-            statusImage.color = Color.red;
-            var offlineDurationTime = DateTime.Now - LastLoginTime;
-            Debug.Log("Player offline " + offlineDurationTime.Days + " days, " 
-                + offlineDurationTime.Hours + " hours, " + offlineDurationTime.Minutes + " minutes.");
-        }
+        audioMixer.SetFloat("Music", volNum);
     }
 }
 ```
 
-В итоге мы можем получить вывод в консоль по типу:
+Добаим этот скрипт к объекту MusicSettings и в поле добавим наш AudioMixer:
 
-![](/Pics/z3_1.jpg)
+![](/Pics/z3_3.jpg)
+
+Теперь, передвигая ползунок в настройках, мы регулируем звук. Это можно заметить, если на двух скриншотах ниже сравнить положения ползунка на слайдере и на звуковом интерфейсе AudioMixer снизу.
+
+![](/Pics/z3_4.jpg)
+
+![](/Pics/z3_5.jpg)
 
 ## Выводы
 
-Мы сделали играбельный прототип игры Dragon Picker и выложили его на платформу Яндекс Игры. Познакомились с плагином Яндекс, сделали проверку статуса игрока(онлайн или оффлай) и вывод в коносль продолжительности отсутствия пользователя. Яндекс SDK имеет большое количество различных фич и с их помощью можно настроить проект самым разнообразным способом.
+Мы добавили звуки в игру, создали главное меню, в котором можно настроить громкость музыки или начать игру. Также познакомились с удобной платформой mixamo.com, на которой есть большое количество 3D персонажей и анимации к ним. Оттуда мы и взяли модельку, чтобы украсить наше игровое поле. Также в Unity имеется возможность добавления пучка света, с помощью которого мы сделали нашего персонажа более эффектным. 
 
 | Plugin | README |
 | ------ | ------ |
